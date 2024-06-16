@@ -4,11 +4,13 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/devder/go_event_booking/db"
 	"github.com/devder/go_event_booking/models"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	db.InitDB()
 	server := gin.Default()
 
 	err := server.SetTrustedProxies(nil)
