@@ -14,5 +14,7 @@ func GenerateToken(email string, userId int64) (string, error) {
 		"exp":    time.Now().Add(time.Hour * 2).Unix(),
 	})
 
-	return token.SignedString(os.Getenv("JWT_SECRET"))
+	jwtSecret := os.Getenv("JWT_SECRET")
+
+	return token.SignedString([]byte(jwtSecret))
 }
