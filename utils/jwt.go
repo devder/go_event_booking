@@ -20,28 +20,29 @@ func GenerateToken(email string, userId int64) (string, error) {
 	return token.SignedString([]byte(jwtSecret))
 }
 
-func VerifyToken(token string) error {
+func VerifyToken(token string) (userId int64, err error) {
 	parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		if _, isSigningMethodHMAC := t.Method.(*jwt.SigningMethodHMAC); !isSigningMethodHMAC {
 			return nil, errors.New("unknown signing method")
 		}
-		return jwtSecret, nil
+		return []byte(jwtSecret), nil
 	})
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if !parsedToken.Valid {
-		return errors.New("invalid token")
+		return 0, errors.New("invalid token")
 	}
 
-	if _, ok := parsedToken.Claims.(jwt.MapClaims); !ok {
-		return errors.New("invalid claim")
+	claims, ok := parsedToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, errors.New("invalid claim")
 	}
 
-	// email, userId := claims["email"].(string), claims["userId"].(int64)
+	_, claimUserId := claims["email"].(string), int64(claims["userId"].(float64))
 
-	return nil
+	return claimUserId, nil
 
 }
