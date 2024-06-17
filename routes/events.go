@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/devder/go_event_booking/models"
-	"github.com/devder/go_event_booking/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,26 +37,15 @@ func getEventById(ctx *gin.Context) {
 }
 
 func createEvent(ctx *gin.Context) {
-	token := ctx.Request.Header.Get("Authorization")
-	if token == "" {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
-		return
-	}
-
-	userId, err := utils.VerifyToken(token)
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
-		return
-	}
-
 	var event models.Event
-	err = ctx.ShouldBindJSON(&event)
+	err := ctx.ShouldBindJSON(&event)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "could not parse request"})
 		return
 	}
 
+	userId := ctx.GetInt64("userId")
 	event.UserID = userId
 
 	err = event.Save()
